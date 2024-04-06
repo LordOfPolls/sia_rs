@@ -4,12 +4,11 @@ mod parsers;
 use crate::models::payloads::{SearchByLicense, SearchByName};
 use crate::{SEARCH_LICENSE_NUM_URL, SEARCH_NAME_URL};
 
+use crate::models::LicenseState;
 use reqwest::Client;
 use reqwest::Response;
-use crate::models::LicenseState;
 
 use crate::requests::parsers::parse;
-
 
 /// Base function for making a request to the SIA API
 ///
@@ -38,7 +37,6 @@ async fn request_base(res: Response) -> Option<Vec<LicenseState>> {
     None
 }
 
-
 /// Search for a license by license number
 ///
 /// # Arguments
@@ -51,14 +49,17 @@ async fn request_base(res: Response) -> Option<Vec<LicenseState>> {
 pub async fn request_search_by_license(payload: SearchByLicense) -> Option<Vec<LicenseState>> {
     let client = Client::new();
 
-    log::debug!("Searching for license number: {:?}" , payload);
+    log::debug!("Searching for license number: {:?}", payload);
 
-    let res = client.post(SEARCH_LICENSE_NUM_URL).form(&payload).send().await;
+    let res = client
+        .post(SEARCH_LICENSE_NUM_URL)
+        .form(&payload)
+        .send()
+        .await;
 
     if res.is_ok() {
         let res = res.unwrap();
         request_base(res).await
-
     } else {
         println!("Error: {:?}", res.err());
         None
@@ -76,20 +77,18 @@ pub async fn request_search_by_license(payload: SearchByLicense) -> Option<Vec<L
 /// * `Option<Vec<LicenseState>>` - A vector of license states if the search was successful, otherwise None.
 pub async fn request_search_by_name(payload: SearchByName) -> Option<Vec<LicenseState>> {
     let client = Client::new();
-    log::debug!("Searching for name: {:?}" , payload);
+    log::debug!("Searching for name: {:?}", payload);
 
     let res = client.post(SEARCH_NAME_URL).form(&payload).send().await;
 
     if res.is_ok() {
         let res = res.unwrap();
         request_base(res).await
-
     } else {
         println!("Error: {:?}", res.err());
         None
     }
 }
-
 
 #[cfg(test)]
 mod tests {

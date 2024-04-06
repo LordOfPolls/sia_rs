@@ -21,10 +21,8 @@ pub struct Query {
     pub date_of_birth: Option<String>,
     pub role: Option<String>,
     pub license_sector: Option<String>,
-    pub license_no: Option<String>
+    pub license_no: Option<String>,
 }
-
-
 
 impl Query {
     pub fn new() -> Self {
@@ -67,7 +65,13 @@ impl Query {
     }
 
     pub fn has_any(&self) -> bool {
-        self.first_name.is_some() || self.middle_name.is_some() || self.last_name.is_some() || self.date_of_birth.is_some() || self.role.is_some() || self.license_sector.is_some() || self.license_no.is_some()
+        self.first_name.is_some()
+            || self.middle_name.is_some()
+            || self.last_name.is_some()
+            || self.date_of_birth.is_some()
+            || self.role.is_some()
+            || self.license_sector.is_some()
+            || self.license_no.is_some()
     }
 
     pub fn build(self) -> Self {
@@ -81,13 +85,13 @@ impl Query {
             middle_name: self.middle_name.clone().unwrap_or("".to_string()),
             dob: self.date_of_birth.clone().unwrap_or("".to_string()),
             role: self.role.clone().unwrap_or("".to_string()),
-            license_sector: self.license_sector.clone().unwrap_or("".to_string())
+            license_sector: self.license_sector.clone().unwrap_or("".to_string()),
         }
     }
 
     pub fn to_search_by_license_payload(&self) -> SearchByLicense {
         SearchByLicense {
-            license_no: self.license_no.clone().unwrap_or("".to_string())
+            license_no: self.license_no.clone().unwrap_or("".to_string()),
         }
     }
 }

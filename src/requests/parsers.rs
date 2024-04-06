@@ -1,11 +1,18 @@
+use crate::models::LicenseState;
+use crate::requests::parse_selectors::{
+    CONTAINER_SELECTOR, EXPIRY_SELECTOR, FIRST_NAME_SELECTOR, LAST_NAME_SELECTOR,
+    LICENSE_CONDITIONS_SELECTOR, LICENSE_NUMBER_SELECTOR, ROLE_SELECTOR, SECTOR_SELECTOR,
+    STATUS_REASON_SELECTOR, STATUS_SELECTOR,
+};
+use chrono::NaiveDate;
 use log::{debug, warn};
 use scraper::ElementRef;
-use chrono::NaiveDate;
-use crate::models::LicenseState;
-use crate::requests::parse_selectors::{CONTAINER_SELECTOR, EXPIRY_SELECTOR, FIRST_NAME_SELECTOR, LAST_NAME_SELECTOR, LICENSE_CONDITIONS_SELECTOR, LICENSE_NUMBER_SELECTOR, ROLE_SELECTOR, SECTOR_SELECTOR, STATUS_REASON_SELECTOR, STATUS_SELECTOR};
 
-pub fn select_first(selector: &scraper::Selector, fragment: &scraper::Html) -> Option<String>{
-    fragment.select(selector).next().map(|element| element.text().collect::<String>())
+pub fn select_first(selector: &scraper::Selector, fragment: &scraper::Html) -> Option<String> {
+    fragment
+        .select(selector)
+        .next()
+        .map(|element| element.text().collect::<String>())
 }
 
 /// Post process a string to remove any leading or trailing whitespace and remove any trailing hyphens
@@ -23,13 +30,12 @@ pub fn string_post_process(input: &str) -> String {
     output
 }
 
-
 fn logged_unwrap_or<T: Default>(input: Option<T>, message: &str) -> T {
     match input {
         Some(value) => value,
         None => {
             warn!("{} - please report this issue", message);
-            return Default::default();
+            Default::default()
         }
     }
 }
@@ -75,20 +81,35 @@ pub fn parse(html_body: &str) -> Option<Vec<LicenseState>> {
             let expiry_t = logged_unwrap_or(expiry_raw, "Unable to find expiry date");
             let expiry_t = string_post_process(&expiry_t);
             NaiveDate::parse_from_str(&expiry_t, "%d %B %Y").unwrap_or_default()
-        }else{
+        } else {
             NaiveDate::default()
         };
 
         let license = LicenseState {
-            first_name: string_post_process(&logged_unwrap_or(first_name, "Unable to find first name")),
-            last_name: string_post_process(&logged_unwrap_or(last_name, "Unable to find last name")),
-            license_number: string_post_process(&logged_unwrap_or(license_number, "Unable to find license number")),
+            first_name: string_post_process(&logged_unwrap_or(
+                first_name,
+                "Unable to find first name",
+            )),
+            last_name: string_post_process(&logged_unwrap_or(
+                last_name,
+                "Unable to find last name",
+            )),
+            license_number: string_post_process(&logged_unwrap_or(
+                license_number,
+                "Unable to find license number",
+            )),
             role: string_post_process(&logged_unwrap_or(role, "Unable to find role")),
             sector: string_post_process(&logged_unwrap_or(sector, "Unable to find sector")),
             expiry,
             status: string_post_process(&logged_unwrap_or(status, "Unable to find status")),
-            status_reason: string_post_process(&logged_unwrap_or(status_reason, "Unable to find status reason")),
-            license_conditions: string_post_process(&logged_unwrap_or(license_conditions, "Unable to find license conditions")),
+            status_reason: string_post_process(&logged_unwrap_or(
+                status_reason,
+                "Unable to find status reason",
+            )),
+            license_conditions: string_post_process(&logged_unwrap_or(
+                license_conditions,
+                "Unable to find license conditions",
+            )),
         };
 
         debug!("Parsed license: {:?}", license.license_number);

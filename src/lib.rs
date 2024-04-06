@@ -46,7 +46,7 @@ pub async fn search(query: Query) -> Option<Vec<LicenseState>> {
 /// * `Option<Vec<LicenseState>>` - A vector of license states if the search was successful, otherwise None.
 pub fn search_sync(query: Query) -> Option<Vec<LicenseState>> {
     let rt = tokio::runtime::Runtime::new().unwrap();
-    return rt.block_on(search(query));
+    rt.block_on(search(query))
 }
 
 #[cfg(test)]
@@ -85,8 +85,7 @@ mod tests {
 
     #[test_log::test]
     fn test_search_with_license_no() {
-        let query = Query::new()
-            .with_license_no("123456".to_string());
+        let query = Query::new().with_license_no("123456".to_string());
 
         let result = search_sync(query);
 
@@ -99,8 +98,7 @@ mod tests {
             return;
         }
 
-        let query = Query::new()
-            .with_license_no(known_license_no.unwrap());
+        let query = Query::new().with_license_no(known_license_no.unwrap());
         let result = search_sync(query);
 
         assert!(result.is_some());
