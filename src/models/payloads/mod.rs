@@ -1,40 +1,34 @@
 use serde::Serialize;
 
 /// An object for searching the public register by name.
-///
-/// # Fields
-///
-/// * `last_name` - The last name of the person.
-/// * `first_name` - The first name of the person.
-/// * `middle_name` - The middle name of the person.
-/// * `dob` - The date of birth of the person.
-/// * `role` - The role of the person.
-/// * `license_sector` - The license sector of the person.
+/// Used for https://services.sia.homeoffice.gov.uk/PublicRegister/SearchPublicRegisterBySurname
 #[derive(Serialize, Debug)]
 pub struct SearchByName {
-    // Used for https://services.sia.homeoffice.gov.uk/PublicRegister/SearchPublicRegisterBySurname
+    /// Their last name
     #[serde(rename = "Surname")]
     pub last_name: String,
+    /// Their first name
     #[serde(rename = "FirstName")]
     pub first_name: String,
+    /// Their middle name
     #[serde(rename = "MiddleName")]
     pub middle_name: String,
     #[serde(rename = "DateOfBirth")]
+    /// Their date of birth
     pub dob: String,
     #[serde(rename = "Role")]
+    /// Their sia licence role
     pub role: String,
+    /// Their sia licence sector
     #[serde(rename = "LicenseSector")]
     pub license_sector: String,
 }
 
 /// An object for searching the public register by license number.
-///
-/// # Fields
-///
-/// * `license_no` - The license number of the person.
+/// Used for https://services.sia.homeoffice.gov.uk/PublicRegister/SearchPublicRegisterByLicence
 #[derive(Serialize, Debug)]
 pub struct SearchByLicense {
-    // Used for https://services.sia.homeoffice.gov.uk/PublicRegister/SearchPublicRegisterByLicence
+    /// The license number to search for
     #[serde(rename = "LicenseNo")]
     pub license_no: String,
 }

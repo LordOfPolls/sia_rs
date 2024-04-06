@@ -2,28 +2,25 @@ use chrono::{NaiveDate, TimeDelta};
 use std::fmt::Display;
 
 /// Represents the state of a license.
-///
-/// # Fields
-///
-/// * `first_name` - The first name of the license holder.
-/// * `last_name` - The last name of the license holder.
-/// * `license_number` - The license number.
-/// * `role` - The role of the license holder.
-/// * `sector` - The sector of the license holder.
-/// * `expiry` - The expiry date of the license.
-/// * `status` - The status of the license.
-/// * `status_reason` - The reason for the status.
-/// * `license_conditions` - The conditions of the license.
 #[derive(Debug, Eq, PartialEq)]
 pub struct LicenseState {
+    /// The first name of the license holder.
     pub first_name: String,
+    /// The last name of the license holder.
     pub last_name: String,
+    /// The license number.
     pub license_number: String,
+    /// The role of this license
     pub role: String,
+    /// The sector of this license
     pub sector: String,
+    /// The expiry date of the license.
     pub expiry: NaiveDate,
+    /// The status of the license.
     pub status: String,
+    /// The reason for the status.
     pub status_reason: String,
+    /// The conditions of the license.
     pub license_conditions: String,
 }
 
