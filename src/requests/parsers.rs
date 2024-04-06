@@ -26,7 +26,7 @@ pub fn string_post_process(input: &str) -> String {
     if output.ends_with('-') {
         output.pop();
     }
-    output = output.trim().to_string();
+    output = output.trim().to_owned();
     output
 }
 

@@ -14,7 +14,7 @@ use crate::models::payloads::{SearchByLicense, SearchByName};
 ///
 /// let result = search(query);
 /// ```
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Query {
     pub first_name: Option<String>,
     pub middle_name: Option<String>,

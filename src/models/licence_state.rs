@@ -3,7 +3,7 @@ use std::fmt::Display;
 use log::warn;
 
 /// Represents the state of a license.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct LicenseState {
     /// The first name of the license holder.
     pub first_name: String,
@@ -39,24 +39,12 @@ impl LicenseState {
 
 impl Display for LicenseState {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut output = String::new();
-        output.push_str(&format!("First Name: {} | ", self.first_name));
-        output.push_str(&format!("Last Name: {} | ", self.last_name));
-        output.push_str(&format!("License Number: {} | ", self.license_number));
-        output.push_str(&format!("Role: {} | ", self.role));
-        output.push_str(&format!("Sector: {} | ", self.sector));
-        output.push_str(&format!("Expiry: {} | ", self.expiry));
-        output.push_str(&format!("Status: {} | ", self.status));
-        output.push_str(&format!("Status Reason: {} | ", self.status_reason));
-        output.push_str(&format!(
-            "License Conditions: {} | ",
-            self.license_conditions
-        ));
-        write!(f, "{}", output)
+        write!(f, "First Name: {} | Last Name: {} | License Number: {} | Role: {} | Sector: {} | Expiry: {} | Status: {} | Status Reason: {} | License Conditions: {}",
+               self.first_name, self.last_name, self.license_number, self.role, self.sector, self.expiry, self.status, self.status_reason, self.license_conditions)
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum LicenseRole {
     /// A license required for those who engage in licensable activities.
     Frontline,
@@ -89,7 +77,7 @@ impl From<&String> for LicenseRole {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum LicenseSector {
     /// Physical transportation of cash and valuables.
     CashInTransit,
