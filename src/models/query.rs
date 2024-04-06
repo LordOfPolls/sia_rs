@@ -64,6 +64,11 @@ impl Query {
         self
     }
 
+    pub fn with_license_number(mut self, license_no: String) -> Self {
+        self.license_no = Some(license_no);
+        self
+    }
+
     pub fn has_any(&self) -> bool {
         self.first_name.is_some()
             || self.middle_name.is_some()
