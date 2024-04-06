@@ -1,6 +1,7 @@
 mod parse_selectors;
 mod parsers;
 
+use log::{error};
 use crate::models::payloads::{SearchByLicense, SearchByName};
 use crate::{SEARCH_LICENSE_NUM_URL, SEARCH_NAME_URL};
 
@@ -29,12 +30,14 @@ async fn request_base(res: Response) -> Option<Vec<LicenseState>> {
                 return Some(licenses);
             }
             None => {
-                println!("No licenses found");
+                return None;
             }
         }
+    }else{
+        error!("Request failed with status code: {}", res.status());
     }
-
     None
+
 }
 
 /// Search for a license by license number
@@ -61,7 +64,7 @@ pub async fn request_search_by_license(payload: SearchByLicense) -> Option<Vec<L
         let res = res.unwrap();
         request_base(res).await
     } else {
-        println!("Error: {:?}", res.err());
+        error!("Error: {:?}", res.err());
         None
     }
 }
@@ -85,7 +88,7 @@ pub async fn request_search_by_name(payload: SearchByName) -> Option<Vec<License
         let res = res.unwrap();
         request_base(res).await
     } else {
-        println!("Error: {:?}", res.err());
+        error!("Error: {:?}", res.err());
         None
     }
 }

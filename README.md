@@ -9,6 +9,7 @@ Providing an easy-to use interface for searching by licenses by licence number o
 - Search for licenses by license number
 - Returns all public information about the license holder
 - Asynchronous and synchronous search functions
+- Full enum mapping for all possible roles and sectors
 
 ## Usage
 ```rust

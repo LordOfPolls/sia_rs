@@ -2,7 +2,7 @@ mod models;
 mod requests;
 
 pub use crate::models::payloads::{SearchByLicense, SearchByName};
-pub use crate::models::{LicenseState, Query};
+pub use crate::models::{LicenseState, Query, LicenseRole, LicenseSector};
 
 pub const SEARCH_LICENSE_NUM_URL: &str =
     "https://services.sia.homeoffice.gov.uk/PublicRegister/SearchPublicRegisterByLicence";
@@ -51,6 +51,7 @@ pub fn search_sync(query: Query) -> Option<Vec<LicenseState>> {
 
 #[cfg(test)]
 mod tests {
+    use crate::models::{LicenseRole, LicenseSector};
     use super::*;
 
     #[test_log::test]
@@ -60,8 +61,8 @@ mod tests {
             .with_first_name("John".to_string())
             .with_middle_name("James".to_string())
             .with_date_of_birth("01/01/1970".to_string())
-            .with_role("Door Supervisor".to_string())
-            .with_license_sector("Security Guard".to_string());
+            .with_role(LicenseRole::Frontline)
+            .with_license_sector(LicenseSector::DoorSupervision);
 
         let result = search_sync(query);
 
@@ -111,8 +112,8 @@ mod tests {
             .with_first_name("John".to_string())
             .with_middle_name("James".to_string())
             .with_date_of_birth("01/01/1970".to_string())
-            .with_role("Door Supervisor".to_string())
-            .with_license_sector("Security Guard".to_string());
+            .with_role(LicenseRole::Frontline)
+            .with_license_sector(LicenseSector::DoorSupervision);
 
         let result = search(query).await;
 

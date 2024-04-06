@@ -1,3 +1,4 @@
+use crate::models::{LicenseRole, LicenseSector};
 use crate::models::payloads::{SearchByLicense, SearchByName};
 
 /// A query object that contains the search parameters.
@@ -49,13 +50,13 @@ impl Query {
         self
     }
 
-    pub fn with_role(mut self, role: String) -> Self {
-        self.role = Some(role);
+    pub fn with_role(mut self, role: LicenseRole) -> Self {
+        self.role = Some(role.to_string());
         self
     }
 
-    pub fn with_license_sector(mut self, license_sector: String) -> Self {
-        self.license_sector = Some(license_sector);
+    pub fn with_license_sector(mut self, license_sector: LicenseSector) -> Self {
+        self.license_sector = Some(license_sector.to_string());
         self
     }
 
