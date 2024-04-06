@@ -2,7 +2,7 @@ mod models;
 mod requests;
 
 pub use crate::models::payloads::{SearchByLicense, SearchByName};
-use crate::models::{LicenseState, Query};
+pub use crate::models::{LicenseState, Query};
 
 pub const SEARCH_LICENSE_NUM_URL: &str =
     "https://services.sia.homeoffice.gov.uk/PublicRegister/SearchPublicRegisterByLicence";
