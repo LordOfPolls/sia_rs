@@ -1,6 +1,6 @@
 use chrono::{NaiveDate, TimeDelta};
-use std::fmt::Display;
 use log::warn;
+use std::fmt::Display;
 
 /// Represents the state of a license.
 #[derive(Debug, Eq, PartialEq, Clone)]
@@ -59,7 +59,7 @@ impl Display for LicenseRole {
         match self {
             LicenseRole::Frontline => write!(f, "Front Line"),
             LicenseRole::NonFrontline => write!(f, "Non Front Line"),
-            _ => write!(f, "Unknown Role")
+            _ => write!(f, "Unknown Role"),
         }
     }
 }
@@ -110,7 +110,7 @@ impl Display for LicenseSector {
             LicenseSector::VehicleImmobilisation => write!(f, "Vehicle Immobilisation"),
             LicenseSector::KeyHolding => write!(f, "Key Holding"),
             LicenseSector::NoSector => write!(f, ""),
-            _ => write!(f, "Unknown Sector")
+            _ => write!(f, "Unknown Sector"),
         }
     }
 }

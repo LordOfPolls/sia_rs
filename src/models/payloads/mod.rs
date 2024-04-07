@@ -24,6 +24,19 @@ pub struct SearchByName {
     pub license_sector: String,
 }
 
+impl SearchByName {
+    pub fn to_params(&self) -> Vec<(&str, &str)> {
+        vec![
+            ("Surname", &self.last_name),
+            ("FirstName", &self.first_name),
+            ("MiddleName", &self.middle_name),
+            ("DateOfBirth", &self.dob),
+            ("Role", &self.role),
+            ("LicenseSector", &self.license_sector),
+        ]
+    }
+}
+
 /// An object for searching the public register by license number.
 /// Used for https://services.sia.homeoffice.gov.uk/PublicRegister/SearchPublicRegisterByLicence
 #[derive(Serialize, Debug)]
@@ -31,6 +44,12 @@ pub struct SearchByLicense {
     /// The license number to search for
     #[serde(rename = "LicenseNo")]
     pub license_no: String,
+}
+
+impl SearchByLicense {
+    pub fn to_params(&self) -> Vec<(&str, &str)> {
+        vec![("LicenseNo", &self.license_no)]
+    }
 }
 
 impl Default for SearchByName {

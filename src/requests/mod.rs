@@ -1,43 +1,64 @@
 mod parse_selectors;
 mod parsers;
 
-use log::{error};
 use crate::models::payloads::{SearchByLicense, SearchByName};
 use crate::{SEARCH_LICENSE_NUM_URL, SEARCH_NAME_URL};
+use log::{error, warn};
 
 use crate::models::LicenseState;
 use reqwest::Client;
-use reqwest::Response;
 
 use crate::requests::parsers::parse;
+use std::time::Duration;
 
-/// Base function for making a request to the SIA API
+use crate::errors::RequestError;
+
+/// Base function for making a request to the SIA website.
+/// Will retry the request with exponential backoff if it fails up to 3 times.
 ///
 /// # Arguments
 ///
-/// * `res` - A Response object from the reqwest library.
+/// * `url` - The URL to make the request to.
+/// * `payload` - The request payload.
 ///
 /// # Returns
 ///
-/// * `Option<Vec<LicenseState>>` - A vector of license states if the search was successful, otherwise None.
-async fn request_base(res: Response) -> Option<Vec<LicenseState>> {
-    if res.status() == 200 {
-        let body = res.text().await.unwrap();
-        let licenses = parse(&body);
+/// * `Result<Vec<LicenseState>, RequestError>` - A vector of license states if the search was successful, otherwise an error.
+async fn request_base(
+    url: &str,
+    payload: &Vec<(&str, &str)>,
+) -> Result<Vec<LicenseState>, RequestError> {
+    let mut backoff = 1;
+    let client = Client::new();
 
-        match licenses {
-            Some(licenses) => {
-                return Some(licenses);
+    loop {
+        let res = client.post(url).form(payload).send().await;
+
+        match res {
+            Ok(res) => {
+                if res.status() == 200 {
+                    let body = res.text().await.unwrap();
+                    return match parse(&body) {
+                        Some(licenses) => Ok(licenses),
+                        None => Ok(Vec::new()),
+                    };
+                } else {
+                    error!("Request failed with status code: {}", res.status());
+                }
             }
-            None => {
-                return None;
+            Err(err) => {
+                warn!("Error: {:?}", err);
+                if backoff > 8 {
+                    error!("Failed to make request after 3 attempts.");
+                    return Err(RequestError::RequestFailed(err));
+                }
             }
         }
-    }else{
-        error!("Request failed with status code: {}", res.status());
-    }
-    None
 
+        let delay = Duration::from_secs(backoff);
+        tokio::time::sleep(delay).await;
+        backoff *= 2;
+    }
 }
 
 /// Search for a license by license number
@@ -48,25 +69,12 @@ async fn request_base(res: Response) -> Option<Vec<LicenseState>> {
 ///
 /// # Returns
 ///
-/// * `Option<Vec<LicenseState>>` - A vector of license states if the search was successful, otherwise None.
-pub async fn request_search_by_license(payload: SearchByLicense) -> Option<Vec<LicenseState>> {
-    let client = Client::new();
-
+/// * `Result<Vec<LicenseState>, RequestError>` - A vector of license states if the search was successful, otherwise an error.
+pub async fn request_search_by_license(
+    payload: SearchByLicense,
+) -> Result<Vec<LicenseState>, RequestError> {
     log::debug!("Searching for license number: {:?}", payload);
-
-    let res = client
-        .post(SEARCH_LICENSE_NUM_URL)
-        .form(&payload)
-        .send()
-        .await;
-
-    if res.is_ok() {
-        let res = res.unwrap();
-        request_base(res).await
-    } else {
-        error!("Error: {:?}", res.err());
-        None
-    }
+    request_base(SEARCH_LICENSE_NUM_URL, &payload.to_params()).await
 }
 
 /// Search for a license by name
@@ -77,20 +85,12 @@ pub async fn request_search_by_license(payload: SearchByLicense) -> Option<Vec<L
 ///
 /// # Returns
 ///
-/// * `Option<Vec<LicenseState>>` - A vector of license states if the search was successful, otherwise None.
-pub async fn request_search_by_name(payload: SearchByName) -> Option<Vec<LicenseState>> {
-    let client = Client::new();
+/// * `Result<Vec<LicenseState>, RequestError>` - A vector of license states if the search was successful, otherwise an error.
+pub async fn request_search_by_name(
+    payload: SearchByName,
+) -> Result<Vec<LicenseState>, RequestError> {
     log::debug!("Searching for name: {:?}", payload);
-
-    let res = client.post(SEARCH_NAME_URL).form(&payload).send().await;
-
-    if res.is_ok() {
-        let res = res.unwrap();
-        request_base(res).await
-    } else {
-        error!("Error: {:?}", res.err());
-        None
-    }
+    request_base(SEARCH_NAME_URL, &payload.to_params()).await
 }
 
 #[cfg(test)]
@@ -104,7 +104,8 @@ mod tests {
         };
 
         let result = request_search_by_license(payload).await;
-        assert_eq!(result, None);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
     }
 
     #[test_log::test(tokio::test)]
@@ -121,7 +122,7 @@ mod tests {
         };
 
         let result = request_search_by_license(payload).await;
-        assert!(result.is_some());
+        assert!(result.is_ok());
 
         assert_eq!(result.unwrap().len(), 1);
     }
@@ -143,7 +144,7 @@ mod tests {
         };
 
         let result = request_search_by_name(payload).await;
-        assert!(result.is_some());
+        assert!(result.is_ok());
 
         assert_eq!(result.unwrap().len(), 2);
     }

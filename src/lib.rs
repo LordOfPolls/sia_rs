@@ -1,8 +1,10 @@
+mod errors;
 mod models;
 mod requests;
 
 pub use crate::models::payloads::{SearchByLicense, SearchByName};
-pub use crate::models::{LicenseState, Query, LicenseRole, LicenseSector};
+pub use crate::models::{LicenseRole, LicenseSector, LicenseState, Query};
+pub use errors::RequestError;
 
 pub const SEARCH_LICENSE_NUM_URL: &str =
     "https://services.sia.homeoffice.gov.uk/PublicRegister/SearchPublicRegisterByLicence";
@@ -17,8 +19,8 @@ pub const SEARCH_NAME_URL: &str =
 ///
 /// # Returns
 ///
-/// * `Option<Vec<LicenseState>>` - A vector of license states if the search was successful, otherwise None.
-pub async fn search(query: Query) -> Option<Vec<LicenseState>> {
+/// * `Result<Vec<LicenseState>, RequestError>` - A vector of license states if the search was successful, otherwise an error.
+pub async fn search(query: Query) -> Result<Vec<LicenseState>, RequestError> {
     if query.license_no.is_some() {
         let payload = query.to_search_by_license_payload();
 
@@ -31,7 +33,7 @@ pub async fn search(query: Query) -> Option<Vec<LicenseState>> {
         return requests::request_search_by_name(payload).await;
     }
 
-    None
+    Ok(Vec::new())
 }
 
 /// Search for a license by either license number or name synchronously.
@@ -43,16 +45,16 @@ pub async fn search(query: Query) -> Option<Vec<LicenseState>> {
 ///
 /// # Returns
 ///
-/// * `Option<Vec<LicenseState>>` - A vector of license states if the search was successful, otherwise None.
-pub fn search_sync(query: Query) -> Option<Vec<LicenseState>> {
+/// * `Result<Vec<LicenseState>, RequestError>` - A vector of license states if the search was successful, otherwise an error.
+pub fn search_sync(query: Query) -> Result<Vec<LicenseState>, RequestError> {
     let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(search(query))
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::models::{LicenseRole, LicenseSector};
     use super::*;
+    use crate::models::{LicenseRole, LicenseSector};
 
     #[test_log::test]
     fn test_search_with_name() {
@@ -66,7 +68,8 @@ mod tests {
 
         let result = search_sync(query);
 
-        assert!(result.is_none());
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
 
         let known_first_name = std::env::var("KNOWN_FIRST_NAME");
         let known_last_name = std::env::var("KNOWN_LAST_NAME");
@@ -81,7 +84,8 @@ mod tests {
 
         let result = search_sync(query);
 
-        assert!(result.is_some());
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 2);
     }
 
     #[test_log::test]
@@ -90,7 +94,8 @@ mod tests {
 
         let result = search_sync(query);
 
-        assert!(result.is_none());
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
 
         let known_license_no = std::env::var("KNOWN_LICENSE_NO");
 
@@ -102,7 +107,8 @@ mod tests {
         let query = Query::new().with_license_no(known_license_no.unwrap());
         let result = search_sync(query);
 
-        assert!(result.is_some());
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 1);
     }
 
     #[test_log::test(tokio::test)]
@@ -117,7 +123,8 @@ mod tests {
 
         let result = search(query).await;
 
-        assert!(result.is_none());
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
 
         let known_first_name = std::env::var("KNOWN_FIRST_NAME");
         let known_last_name = std::env::var("KNOWN_LAST_NAME");
@@ -132,6 +139,7 @@ mod tests {
 
         let result = search(query).await;
 
-        assert!(result.is_some());
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 2);
     }
 }

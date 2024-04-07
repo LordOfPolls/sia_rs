@@ -1,5 +1,5 @@
-use crate::models::{LicenseRole, LicenseSector};
 use crate::models::payloads::{SearchByLicense, SearchByName};
+use crate::models::{LicenseRole, LicenseSector};
 
 /// A query object that contains the search parameters.
 /// Follows the builder pattern.

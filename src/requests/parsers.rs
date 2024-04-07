@@ -1,4 +1,4 @@
-use crate::models::{LicenseRole, LicenseState, LicenseSector};
+use crate::models::{LicenseRole, LicenseSector, LicenseState};
 use crate::requests::parse_selectors::{
     CONTAINER_SELECTOR, EXPIRY_SELECTOR, FIRST_NAME_SELECTOR, LAST_NAME_SELECTOR,
     LICENSE_CONDITIONS_SELECTOR, LICENSE_NUMBER_SELECTOR, ROLE_SELECTOR, SECTOR_SELECTOR,
@@ -98,12 +98,14 @@ pub fn parse(html_body: &str) -> Option<Vec<LicenseState>> {
                 license_number,
                 "Unable to find license number",
             )),
-            role: LicenseRole::from(&string_post_process(
-                &logged_unwrap_or(role, "Unable to find role"),
-            )),
-            sector: LicenseSector::from(&string_post_process(
-                &logged_unwrap_or(sector, "Unable to find sector"),
-            )),
+            role: LicenseRole::from(&string_post_process(&logged_unwrap_or(
+                role,
+                "Unable to find role",
+            ))),
+            sector: LicenseSector::from(&string_post_process(&logged_unwrap_or(
+                sector,
+                "Unable to find sector",
+            ))),
             expiry,
             status: string_post_process(&logged_unwrap_or(status, "Unable to find status")),
             status_reason: string_post_process(&logged_unwrap_or(

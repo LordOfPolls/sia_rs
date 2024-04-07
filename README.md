@@ -20,15 +20,15 @@ fn main() {
         .with_last_name("Smith".to_string())
         .with_first_name("John".to_string());
 
-    let results = search_sync(query);
+    let results: Result<Vec<LicenseState>, RequestError> = search_sync(query);
 
     match results {
-        Some(licenses) => {
+        Ok(licenses) => {
             for license in licenses {
                 println!("{}", license);
             }
         },
-        None => println!("No licenses found"),
+        Err(e) => println!("Error: {}", e),
     }
     
     let query = Query::new()
@@ -37,12 +37,12 @@ fn main() {
     let results = search_sync(query);
     
     match results {
-        Some(licenses) => {
+        Ok(licenses) => {
             for license in licenses {
                 println!("{}", license);
             }
         },
-        None => println!("No licenses found"),
+        Err(e) => println!("Error: {}", e),
     }
 }
 ```
