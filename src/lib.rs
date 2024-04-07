@@ -1,10 +1,11 @@
-mod errors;
-mod models;
-mod requests;
+pub use errors::RequestError;
 
 pub use crate::models::payloads::{SearchByLicense, SearchByName};
 pub use crate::models::{LicenseRole, LicenseSector, LicenseState, Query};
-pub use errors::RequestError;
+
+mod errors;
+mod models;
+mod requests;
 
 pub const SEARCH_LICENSE_NUM_URL: &str =
     "https://services.sia.homeoffice.gov.uk/PublicRegister/SearchPublicRegisterByLicence";
@@ -53,8 +54,9 @@ pub fn search_sync(query: Query) -> Result<Vec<LicenseState>, RequestError> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::models::{LicenseRole, LicenseSector};
+
+    use super::*;
 
     #[test_log::test]
     fn test_search_with_name() {

@@ -1,6 +1,7 @@
+use std::fmt::Display;
+
 use chrono::{NaiveDate, TimeDelta};
 use log::warn;
-use std::fmt::Display;
 
 /// Represents the state of a license.
 #[derive(Debug, Eq, PartialEq, Clone)]

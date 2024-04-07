@@ -1,12 +1,13 @@
+use chrono::NaiveDate;
+use log::{debug, warn};
+use scraper::ElementRef;
+
 use crate::models::{LicenseRole, LicenseSector, LicenseState};
 use crate::requests::parse_selectors::{
     CONTAINER_SELECTOR, EXPIRY_SELECTOR, FIRST_NAME_SELECTOR, LAST_NAME_SELECTOR,
     LICENSE_CONDITIONS_SELECTOR, LICENSE_NUMBER_SELECTOR, ROLE_SELECTOR, SECTOR_SELECTOR,
     STATUS_REASON_SELECTOR, STATUS_SELECTOR,
 };
-use chrono::NaiveDate;
-use log::{debug, warn};
-use scraper::ElementRef;
 
 pub fn select_first(selector: &scraper::Selector, fragment: &scraper::Html) -> Option<String> {
     fragment

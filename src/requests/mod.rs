@@ -1,17 +1,16 @@
-mod parse_selectors;
-mod parsers;
-
-use crate::models::payloads::{SearchByLicense, SearchByName};
-use crate::{SEARCH_LICENSE_NUM_URL, SEARCH_NAME_URL};
-use log::{error, warn};
-
-use crate::models::LicenseState;
-use reqwest::Client;
-
-use crate::requests::parsers::parse;
 use std::time::Duration;
 
+use log::{error, warn};
+use reqwest::Client;
+
 use crate::errors::RequestError;
+use crate::models::payloads::{SearchByLicense, SearchByName};
+use crate::models::LicenseState;
+use crate::requests::parsers::parse;
+use crate::{SEARCH_LICENSE_NUM_URL, SEARCH_NAME_URL};
+
+mod parse_selectors;
+mod parsers;
 
 /// Base function for making a request to the SIA website.
 /// Will retry the request with exponential backoff if it fails up to 3 times.
