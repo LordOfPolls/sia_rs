@@ -5,22 +5,24 @@ A rust library for searching the UK's [Security Industry Authority (SIA) registe
 Providing an easy-to use interface for searching by licenses by licence number or details of the licence holder.
 
 ## Features
-- Search for licenses by name (first name, last name, middle name, date of birth, role, and sector)
+- Search for licenses by details (first name, last name, middle name, date of birth, role, and sector)
 - Search for licenses by license number
 - Returns all public information about the license holder
 - Asynchronous and synchronous search functions
+  - Synchronous functions are available with the `blocking` feature
 - Full enum mapping for all possible roles and sectors
 
 ## Usage
 ```rust
-use sia_rs::{Query, search_sync};
+use sia_rs::{Query, search};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let query = Query::new()
         .with_last_name("Smith".to_string())
         .with_first_name("John".to_string());
 
-    let results: Result<Vec<LicenseState>, RequestError> = search_sync(query);
+    let results: Result<Vec<LicenseState>, RequestError> = search(query).await;
 
     match results {
         Ok(licenses) => {
@@ -30,12 +32,12 @@ fn main() {
         },
         Err(e) => println!("Error: {}", e),
     }
-    
+
     let query = Query::new()
         .with_license_number("1234567890123456".to_string());
-    
-    let results = search_sync(query);
-    
+
+    let results = search(query).await;
+
     match results {
         Ok(licenses) => {
             for license in licenses {
@@ -47,8 +49,17 @@ fn main() {
 }
 ```
 All interactions are done through the `Query` struct, which is used to build the search query. 
-The `search_sync` function is used to perform the search and returns a `Vec<License>` containing the results.
-An async `search` function is also available, however, which follows the same pattern as the synchronous version.
+The `search` function is used to perform the search and returns a `Vec<License>` containing the results.
+
+### Blocking 
+The `search_sync` function is a blocking function that will wait for the search to complete before returning the results.
+This function is only available with the `blocking` feature enabled.
+
+```toml
+[dependencies]
+sia_rs = { version = "*", features = ["blocking"] }
+```
+
 
 ### Testing 
 Some tests require real data and will only run if certain environment variables are set:

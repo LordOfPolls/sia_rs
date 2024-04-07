@@ -2,6 +2,8 @@ pub use errors::RequestError;
 
 pub use crate::models::payloads::{SearchByLicense, SearchByName};
 pub use crate::models::{LicenseRole, LicenseSector, LicenseState, Query};
+#[cfg(feature = "blocking")]
+pub use crate::requests::blocking;
 
 mod errors;
 mod models;
@@ -38,7 +40,6 @@ pub async fn search(query: Query) -> Result<Vec<LicenseState>, RequestError> {
 }
 
 /// Search for a license by either license number or name synchronously.
-/// Calls the async search function under the hood.
 ///
 /// # Arguments
 ///
@@ -47,9 +48,21 @@ pub async fn search(query: Query) -> Result<Vec<LicenseState>, RequestError> {
 /// # Returns
 ///
 /// * `Result<Vec<LicenseState>, RequestError>` - A vector of license states if the search was successful, otherwise an error.
+#[cfg(feature = "blocking")]
 pub fn search_sync(query: Query) -> Result<Vec<LicenseState>, RequestError> {
-    let rt = tokio::runtime::Runtime::new().unwrap();
-    rt.block_on(search(query))
+    if query.license_no.is_some() {
+        let payload = query.to_search_by_license_payload();
+
+        return blocking::request_search_by_license(payload);
+    }
+
+    if query.has_any() {
+        let payload = query.to_search_by_name_payload();
+
+        return blocking::request_search_by_name(payload);
+    }
+
+    Ok(Vec::new())
 }
 
 #[cfg(test)]
@@ -59,6 +72,7 @@ mod tests {
     use super::*;
 
     #[test_log::test]
+    #[cfg(feature = "blocking")]
     fn test_search_with_name() {
         let query = Query::new()
             .with_last_name("Smith".to_string())
@@ -91,6 +105,7 @@ mod tests {
     }
 
     #[test_log::test]
+    #[cfg(feature = "blocking")]
     fn test_search_with_license_no() {
         let query = Query::new().with_license_no("123456".to_string());
 
