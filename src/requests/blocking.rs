@@ -2,14 +2,15 @@
 
 use std::time::Duration;
 
-use log::{error, warn};
+use log::{debug, error, warn};
 use reqwest::blocking::Client;
 
-use crate::errors::RequestError;
+use crate::errors::{ParseError, RequestError};
 use crate::models::payloads::{SearchByLicense, SearchByName};
 use crate::models::LicenseState;
 use crate::requests::parsers::parse;
 use crate::{SEARCH_LICENSE_NUM_URL, SEARCH_NAME_URL};
+use crate::RequestError::ParseFailed;
 
 /// Base function for making a request to the SIA website.
 /// Will retry the request with exponential backoff if it fails up to 3 times.
@@ -37,11 +38,28 @@ pub fn request_base(
                 if res.status() == 200 {
                     let body = res.text().unwrap();
                     return match parse(&body) {
-                        Some(licenses) => Ok(licenses),
-                        None => Ok(Vec::new()),
+                        Ok(licenses) => Ok(licenses),
+                        Err(err) => match err {
+                            ParseError::NoLicensesFound => {
+                                debug!("No licenses found.");
+                                Ok(vec![])
+                            }
+                            ParseError::TooManySearchResults => {
+                                debug!("Too many search results.");
+                                Ok(vec![])
+                            }
+                            ParseError::NoLicenseContainersFound => {
+                                warn!("No license containers found.");
+                                Err(ParseFailed)
+                            }
+                        },
                     };
                 } else {
                     error!("Request failed with status code: {}", res.status());
+                    if backoff > 8 {
+                        error!("Failed to make request after 3 attempts.");
+                        return Err(RequestError::RequestFailed(res.error_for_status().unwrap_err()));
+                    }
                 }
             }
             Err(err) => {

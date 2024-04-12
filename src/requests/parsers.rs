@@ -1,6 +1,7 @@
 use chrono::NaiveDate;
 use log::{debug, warn};
 use scraper::ElementRef;
+use crate::errors::ParseError;
 
 use crate::models::{LicenseRole, LicenseSector, LicenseState};
 use crate::requests::parse_selectors::{
@@ -46,20 +47,20 @@ fn logged_unwrap_or<T: Default>(input: Option<T>, message: &str) -> T {
 /// # Arguments
 ///
 /// * `html_body` - The HTML body of the search results page
-pub fn parse(html_body: &str) -> Option<Vec<LicenseState>> {
+pub fn parse(html_body: &str) -> Result<Vec<LicenseState>, ParseError> {
     if html_body.contains("Unfortunately we found no licences based on the data") {
-        return None;
+        return Err(ParseError::NoLicensesFound);
     }
 
     if html_body.contains("Too many search results") {
-        return None;
+        return Err(ParseError::TooManySearchResults);
     }
 
     let document = scraper::Html::parse_document(html_body);
     let containers: Vec<ElementRef> = document.select(&CONTAINER_SELECTOR).collect();
 
     if containers.is_empty() {
-        return None;
+        return Err(ParseError::NoLicenseContainersFound);
     }
 
     debug!("Found {} license containers", containers.len());
@@ -124,5 +125,5 @@ pub fn parse(html_body: &str) -> Option<Vec<LicenseState>> {
         licenses.push(license);
     }
 
-    Some(licenses)
+    Ok(licenses)
 }
