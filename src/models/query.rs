@@ -100,4 +100,140 @@ impl Query {
             license_no: self.license_no.clone().unwrap_or("".to_string()),
         }
     }
+
+    /// Alias function for crate::search
+    ///
+    /// Takes no arguments and returns a Result<Vec<LicenseState>, RequestError>
+    pub async fn search(&self) -> Result<Vec<LicenseState>, RequestError> {
+        crate::search(self).await
+    }
+
+    /// Alias function for crate::search_sync
+    ///
+    /// Takes no arguments and returns a Result<Vec<LicenseState>, RequestError>
+    #[cfg(feature = "blocking")]
+    pub fn search_sync(&self) -> Result<Vec<LicenseState>, RequestError> {
+        crate::search_sync(self)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::models::{LicenseRole, LicenseSector};
+
+    use super::*;
+
+    #[test_log::test]
+    #[cfg(feature = "blocking")]
+    fn test_query_search_with_name() {
+        let result = Query::new()
+            .with_last_name("Smith".to_string())
+            .with_first_name("John".to_string())
+            .with_middle_name("James".to_string())
+            .with_date_of_birth("01/01/1970".to_string())
+            .with_role(LicenseRole::Frontline)
+            .with_license_sector(LicenseSector::DoorSupervision)
+            .search_sync();
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
+
+        let known_first_name = std::env::var("KNOWN_FIRST_NAME");
+        let known_last_name = std::env::var("KNOWN_LAST_NAME");
+
+        if known_first_name.is_err() || known_last_name.is_err() {
+            println!("Please set the environment variables KNOWN_FIRST_NAME and KNOWN_LAST_NAME to run this test.");
+            return;
+        }
+
+        let result = Query::new()
+            .with_first_name(known_first_name.unwrap())
+            .with_last_name(known_last_name.unwrap())
+            .search_sync();
+
+        assert!(result.is_ok());
+        assert!(result.unwrap().len() > 0);
+    }
+
+    #[test_log::test]
+    #[cfg(feature = "blocking")]
+    fn test_query_search_with_license_no() {
+        let query = Query::new()
+            .with_license_no("123456".to_string());
+
+        assert_eq!(query.license_no, Some("123456".to_string()));
+
+        let known_license_no = std::env::var("KNOWN_LICENSE_NO");
+
+        if known_license_no.is_err() {
+            println!("Please set the environment variable KNOWN_LICENSE_NO to run this test.");
+            return;
+        }
+
+        let result = Query::new()
+            .with_license_no(known_license_no.unwrap())
+            .search_sync();
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 1);
+    }
+
+    #[test_log::test(tokio::test)]
+    async fn test_query_search_with_name_async() {
+        let result = Query::new()
+            .with_last_name("Smith".to_string())
+            .with_first_name("John".to_string())
+            .with_middle_name("James".to_string())
+            .with_date_of_birth("01/01/1970".to_string())
+            .with_role(LicenseRole::Frontline)
+            .with_license_sector(LicenseSector::DoorSupervision)
+            .search()
+            .await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
+
+        let known_first_name = std::env::var("KNOWN_FIRST_NAME");
+        let known_last_name = std::env::var("KNOWN_LAST_NAME");
+
+        if known_first_name.is_err() || known_last_name.is_err() {
+            println!("Please set the environment variables KNOWN_FIRST_NAME and KNOWN_LAST_NAME to run this test.");
+            return;
+        }
+
+        let result = Query::new()
+            .with_first_name(known_first_name.unwrap())
+            .with_last_name(known_last_name.unwrap())
+            .search()
+            .await;
+
+        assert!(result.is_ok());
+        assert!(result.unwrap().len() > 0);
+    }
+
+    #[test_log::test(tokio::test)]
+    async fn test_query_search_with_license_no_async() {
+        let query = Query::new()
+            .with_license_no("123456".to_string())
+            .search()
+            .await;
+
+        assert!(query.is_ok());
+        assert_eq!(query.unwrap().len(), 0);
+
+        let known_license_no = std::env::var("KNOWN_LICENSE_NO");
+
+        if known_license_no.is_err() {
+            println!("Please set the environment variable KNOWN_LICENSE_NO to run this test.");
+            return;
+        }
+
+        let query = Query::new()
+            .with_license_no(known_license_no.unwrap())
+            .search()
+            .await;
+
+        assert!(query.is_ok());
+        assert_eq!(query.unwrap().len(), 1);
+    }
 }
