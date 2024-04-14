@@ -22,7 +22,7 @@ async fn main() {
         .with_last_name("Smith".to_string())
         .with_first_name("John".to_string());
 
-    let results: Result<Vec<LicenseState>, RequestError> = search(query).await;
+    let results: Result<Vec<LicenseState>, RequestError> = search(&query).await;
 
     match results {
         Ok(licenses) => {
@@ -36,7 +36,7 @@ async fn main() {
     let query = Query::new()
         .with_license_number("1234567890123456".to_string());
 
-    let results = search(query).await;
+    let results = search(&query).await;
 
     match results {
         Ok(licenses) => {

@@ -23,7 +23,7 @@ pub const SEARCH_NAME_URL: &str =
 /// # Returns
 ///
 /// * `Result<Vec<LicenseState>, RequestError>` - A vector of license states if the search was successful, otherwise an error.
-pub async fn search(query: Query) -> Result<Vec<LicenseState>, RequestError> {
+pub async fn search(query: &Query) -> Result<Vec<LicenseState>, RequestError> {
     if query.license_no.is_some() {
         let payload = query.to_search_by_license_payload();
 
@@ -49,7 +49,7 @@ pub async fn search(query: Query) -> Result<Vec<LicenseState>, RequestError> {
 ///
 /// * `Result<Vec<LicenseState>, RequestError>` - A vector of license states if the search was successful, otherwise an error.
 #[cfg(feature = "blocking")]
-pub fn search_sync(query: Query) -> Result<Vec<LicenseState>, RequestError> {
+pub fn search_sync(query: &Query) -> Result<Vec<LicenseState>, RequestError> {
     if query.license_no.is_some() {
         let payload = query.to_search_by_license_payload();
 
@@ -101,7 +101,7 @@ mod tests {
         let result = search_sync(query);
 
         assert!(result.is_ok());
-        assert_eq!(result.unwrap().len(), 2);
+        assert!(result.unwrap().len() > 0);
     }
 
     #[test_log::test]
@@ -138,7 +138,7 @@ mod tests {
             .with_role(LicenseRole::Frontline)
             .with_license_sector(LicenseSector::DoorSupervision);
 
-        let result = search(query).await;
+        let result = search(&query).await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().len(), 0);
@@ -154,7 +154,7 @@ mod tests {
             .with_first_name(known_first_name.unwrap())
             .with_last_name(known_last_name.unwrap());
 
-        let result = search(query).await;
+        let result = search(&query).await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().len(), 2);

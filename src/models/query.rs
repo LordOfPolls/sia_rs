@@ -12,7 +12,7 @@ use crate::models::{LicenseRole, LicenseSector};
 ///    .with_last_name("Smith".to_string())
 ///   .with_first_name("John".to_string());
 ///
-/// let result = search(query);
+/// let result = search(&query);
 /// ```
 #[derive(Default, Debug, Clone)]
 pub struct Query {
