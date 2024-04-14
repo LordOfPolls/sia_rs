@@ -1,5 +1,6 @@
 use crate::models::payloads::{SearchByLicense, SearchByName};
 use crate::models::{LicenseRole, LicenseSector};
+use crate::{LicenseState, RequestError};
 
 /// A query object that contains the search parameters.
 /// Follows the builder pattern.
@@ -30,46 +31,55 @@ impl Query {
         Self::default()
     }
 
+    /// Sets the first name of the license holder.
     pub fn with_first_name(mut self, first_name: String) -> Self {
         self.first_name = Some(first_name);
         self
     }
 
+    /// Sets the middle name of the license holder.
     pub fn with_middle_name(mut self, middle_name: String) -> Self {
         self.middle_name = Some(middle_name);
         self
     }
 
+    /// Sets the last name of the license holder.
     pub fn with_last_name(mut self, last_name: String) -> Self {
         self.last_name = Some(last_name);
         self
     }
 
+    /// Sets the date of birth of the license holder.
     pub fn with_date_of_birth(mut self, date_of_birth: String) -> Self {
         self.date_of_birth = Some(date_of_birth);
         self
     }
 
+    /// Sets the role of the license.
     pub fn with_role(mut self, role: LicenseRole) -> Self {
         self.role = Some(role.to_string());
         self
     }
 
+    /// Sets the sector of the license.
     pub fn with_license_sector(mut self, license_sector: LicenseSector) -> Self {
         self.license_sector = Some(license_sector.to_string());
         self
     }
 
+    /// Sets the license number.
     pub fn with_license_no(mut self, license_no: String) -> Self {
         self.license_no = Some(license_no);
         self
     }
 
+    /// Checks if any search parameters are set.
     pub fn with_license_number(mut self, license_no: String) -> Self {
         self.license_no = Some(license_no);
         self
     }
 
+    /// Checks if any search parameters are set.
     pub fn has_any(&self) -> bool {
         self.first_name.is_some()
             || self.middle_name.is_some()
@@ -80,10 +90,12 @@ impl Query {
             || self.license_no.is_some()
     }
 
+    /// Builds the query object.
     pub fn build(self) -> Self {
         self
     }
 
+    /// Converts the query object to a SearchByName payload.
     pub fn to_search_by_name_payload(&self) -> SearchByName {
         SearchByName {
             last_name: self.last_name.clone().unwrap_or("".to_string()),
@@ -95,6 +107,7 @@ impl Query {
         }
     }
 
+    /// Converts the query object to a SearchByLicense payload.
     pub fn to_search_by_license_payload(&self) -> SearchByLicense {
         SearchByLicense {
             license_no: self.license_no.clone().unwrap_or("".to_string()),
@@ -158,8 +171,7 @@ mod tests {
     #[test_log::test]
     #[cfg(feature = "blocking")]
     fn test_query_search_with_license_no() {
-        let query = Query::new()
-            .with_license_no("123456".to_string());
+        let query = Query::new().with_license_no("123456".to_string());
 
         assert_eq!(query.license_no, Some("123456".to_string()));
 
