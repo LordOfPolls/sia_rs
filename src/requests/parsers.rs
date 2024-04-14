@@ -1,8 +1,8 @@
 use chrono::NaiveDate;
 use log::{debug, warn};
 use scraper::ElementRef;
-use crate::errors::ParseError;
 
+use crate::errors::ParseError;
 use crate::models::{LicenseRole, LicenseSector, LicenseState};
 use crate::requests::parse_selectors::{
     CONTAINER_SELECTOR, EXPIRY_SELECTOR, FIRST_NAME_SELECTOR, LAST_NAME_SELECTOR,

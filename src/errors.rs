@@ -8,5 +8,5 @@ pub enum RequestError {
 pub enum ParseError {
     NoLicensesFound,
     TooManySearchResults,
-    NoLicenseContainersFound
+    NoLicenseContainersFound,
 }

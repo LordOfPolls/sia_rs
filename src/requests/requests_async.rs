@@ -9,8 +9,8 @@ use crate::errors::{ParseError, RequestError};
 use crate::models::payloads::{SearchByLicense, SearchByName};
 use crate::models::LicenseState;
 use crate::requests::parsers::parse;
-use crate::{SEARCH_LICENSE_NUM_URL, SEARCH_NAME_URL};
 use crate::RequestError::ParseFailed;
+use crate::{SEARCH_LICENSE_NUM_URL, SEARCH_NAME_URL};
 
 /// Base function for making a request to the SIA website.
 /// Will retry the request with exponential backoff if it fails up to 3 times.
@@ -58,7 +58,9 @@ async fn request_base(
                     error!("Request failed with status code: {}", res.status());
                     if backoff > 8 {
                         error!("Failed to make request after 3 attempts.");
-                        return Err(RequestError::RequestFailed(res.error_for_status().unwrap_err()));
+                        return Err(RequestError::RequestFailed(
+                            res.error_for_status().unwrap_err(),
+                        ));
                     }
                 }
             }
