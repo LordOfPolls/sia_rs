@@ -2,9 +2,10 @@ use std::fmt::Display;
 
 use chrono::{NaiveDate, TimeDelta};
 use log::warn;
+use serde::{Deserialize, Serialize};
 
 /// Represents the state of a license.
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
 pub struct LicenseState {
     /// The first name of the license holder.
     pub first_name: String,
@@ -45,7 +46,8 @@ impl Display for LicenseState {
     }
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+/// Represents the role of a license.
+#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
 pub enum LicenseRole {
     /// A license required for those who engage in licensable activities.
     Frontline,
@@ -78,7 +80,8 @@ impl From<&String> for LicenseRole {
     }
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+/// Represents the sector of a license.
+#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
 pub enum LicenseSector {
     /// Physical transportation of cash and valuables.
     CashInTransit,
