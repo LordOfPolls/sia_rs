@@ -1,5 +1,4 @@
-pub use errors::RequestError;
-
+use crate::errors::SIAError;
 pub use crate::models::payloads::{SearchByLicense, SearchByName};
 pub use crate::models::{LicenseRole, LicenseSector, LicenseState, Query};
 #[cfg(feature = "blocking")]
@@ -23,7 +22,7 @@ pub const SEARCH_NAME_URL: &str =
 /// # Returns
 ///
 /// * `Result<Vec<LicenseState>, RequestError>` - A vector of license states if the search was successful, otherwise an error.
-pub async fn search(query: &Query) -> Result<Vec<LicenseState>, RequestError> {
+pub async fn search(query: &Query) -> Result<Vec<LicenseState>, SIAError> {
     if query.license_no.is_some() {
         let payload = query.to_search_by_license_payload();
 
@@ -49,7 +48,7 @@ pub async fn search(query: &Query) -> Result<Vec<LicenseState>, RequestError> {
 ///
 /// * `Result<Vec<LicenseState>, RequestError>` - A vector of license states if the search was successful, otherwise an error.
 #[cfg(feature = "blocking")]
-pub fn search_sync(query: &Query) -> Result<Vec<LicenseState>, RequestError> {
+pub fn search_sync(query: &Query) -> Result<Vec<LicenseState>, SIAError> {
     if query.license_no.is_some() {
         let payload = query.to_search_by_license_payload();
 

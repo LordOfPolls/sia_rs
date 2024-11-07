@@ -1,6 +1,6 @@
 use crate::models::payloads::{SearchByLicense, SearchByName};
 use crate::models::{LicenseRole, LicenseSector};
-use crate::{LicenseState, RequestError};
+use crate::{LicenseState, SIAError};
 
 /// A query object that contains the search parameters.
 /// Follows the builder pattern.
@@ -117,7 +117,7 @@ impl Query {
     /// Alias function for crate::search
     ///
     /// Takes no arguments and returns a Result<Vec<LicenseState>, RequestError>
-    pub async fn search(&self) -> Result<Vec<LicenseState>, RequestError> {
+    pub async fn search(&self) -> Result<Vec<LicenseState>, SIAError> {
         crate::search(self).await
     }
 
@@ -125,7 +125,7 @@ impl Query {
     ///
     /// Takes no arguments and returns a Result<Vec<LicenseState>, RequestError>
     #[cfg(feature = "blocking")]
-    pub fn search_sync(&self) -> Result<Vec<LicenseState>, RequestError> {
+    pub fn search_sync(&self) -> Result<Vec<LicenseState>, SIAError> {
         crate::search_sync(self)
     }
 }
@@ -220,7 +220,7 @@ mod tests {
             .await;
 
         assert!(result.is_ok());
-        assert!(result.unwrap().len() > 0);
+        assert!(!result.unwrap().is_empty());
     }
 
     #[test_log::test(tokio::test)]

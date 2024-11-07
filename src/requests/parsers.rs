@@ -2,7 +2,7 @@ use chrono::NaiveDate;
 use log::{debug, warn};
 use scraper::ElementRef;
 
-use crate::errors::ParseError;
+use crate::errors::SIAError;
 use crate::models::{LicenseRole, LicenseSector, LicenseState};
 use crate::requests::parse_selectors::{
     CONTAINER_SELECTOR, EXPIRY_SELECTOR, FIRST_NAME_SELECTOR, LAST_NAME_SELECTOR,
@@ -47,20 +47,20 @@ fn logged_unwrap_or<T: Default>(input: Option<T>, message: &str) -> T {
 /// # Arguments
 ///
 /// * `html_body` - The HTML body of the search results page
-pub fn parse(html_body: &str) -> Result<Vec<LicenseState>, ParseError> {
-    if html_body.contains("Unfortunately we found no licences based on the data") {
-        return Err(ParseError::NoLicensesFound);
+pub fn parse(html_body: &str) -> Result<Vec<LicenseState>, SIAError> {
+    if html_body.contains("No results found") {
+        return Err(SIAError::NoLicensesFound);
     }
 
     if html_body.contains("Too many search results") {
-        return Err(ParseError::TooManySearchResults);
+        return Err(SIAError::TooManyResults);
     }
 
     let document = scraper::Html::parse_document(html_body);
     let containers: Vec<ElementRef> = document.select(&CONTAINER_SELECTOR).collect();
 
     if containers.is_empty() {
-        return Err(ParseError::NoLicenseContainersFound);
+        return Err(SIAError::NoLicensesFound);
     }
 
     debug!("Found {} license containers", containers.len());
@@ -86,6 +86,19 @@ pub fn parse(html_body: &str) -> Result<Vec<LicenseState>, ParseError> {
         } else {
             NaiveDate::default()
         };
+
+        if first_name.is_none()
+            && last_name.is_none()
+            && license_number.is_none()
+            && role.is_none()
+            && sector.is_none()
+            && status.is_none()
+            && status_reason.is_none()
+            && license_conditions.is_none()
+        {
+            warn!("Unable to parse license - please report this issue. Aborting.");
+            return Err(SIAError::ParseFailed);
+        }
 
         let license = LicenseState {
             first_name: string_post_process(&logged_unwrap_or(
