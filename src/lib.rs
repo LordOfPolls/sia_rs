@@ -82,7 +82,7 @@ mod tests {
             .with_role(LicenseRole::Frontline)
             .with_license_sector(LicenseSector::DoorSupervision);
 
-        let result = search_sync(query);
+        let result = search_sync(&query);
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().len(), 0);
@@ -98,7 +98,7 @@ mod tests {
             .with_first_name(known_first_name.unwrap())
             .with_last_name(known_last_name.unwrap());
 
-        let result = search_sync(query);
+        let result = search_sync(&query);
 
         assert!(result.is_ok());
         assert!(result.unwrap().len() > 0);
@@ -109,7 +109,7 @@ mod tests {
     fn test_search_with_license_no() {
         let query = Query::new().with_license_no("123456".to_string());
 
-        let result = search_sync(query);
+        let result = search_sync(&query);
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().len(), 0);
@@ -122,7 +122,7 @@ mod tests {
         }
 
         let query = Query::new().with_license_no(known_license_no.unwrap());
-        let result = search_sync(query);
+        let result = search_sync(&query);
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().len(), 1);
