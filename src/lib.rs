@@ -1,4 +1,4 @@
-use crate::errors::SIAError;
+pub use crate::errors::SIAError;
 pub use crate::models::payloads::{SearchByLicense, SearchByName};
 pub use crate::models::{LicenseRole, LicenseSector, LicenseState, Query};
 #[cfg(feature = "blocking")]
