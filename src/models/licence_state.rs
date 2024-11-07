@@ -69,9 +69,12 @@ impl Display for LicenseRole {
 
 impl From<&String> for LicenseRole {
     fn from(s: &String) -> Self {
+        let mut s = s.replace(|c: char| !c.is_alphanumeric(), "");
+        s = s.to_lowercase();
+
         match s.as_str() {
-            "Front Line" => LicenseRole::Frontline,
-            "Non Front Line" => LicenseRole::NonFrontline,
+            "frontline" => LicenseRole::Frontline,
+            "nonfrontline" => LicenseRole::NonFrontline,
             _ => {
                 warn!("Unknown role: {} - Please report this.", s);
                 LicenseRole::Unknown
@@ -121,14 +124,17 @@ impl Display for LicenseSector {
 
 impl From<&String> for LicenseSector {
     fn from(s: &String) -> Self {
+        let mut s = s.replace(|c: char| !c.is_alphanumeric(), "");
+        s = s.to_lowercase();
         match s.as_str() {
-            "Cash and Valuables in Transit" => LicenseSector::CashInTransit,
-            "Close Protection" => LicenseSector::CloseProtection,
-            "Door Supervision" => LicenseSector::DoorSupervision,
-            "Public Space Surveillance (CCTV)" => LicenseSector::PublicSpaceSurveillance,
-            "Security Guard" => LicenseSector::SecurityGuard,
-            "Vehicle Immobilisation" => LicenseSector::VehicleImmobilisation,
-            "Key Holding" => LicenseSector::KeyHolding,
+            "cashandvaluablesintransit" => LicenseSector::CashInTransit,
+            "cashintransit" => LicenseSector::CashInTransit,
+            "closeprotection" => LicenseSector::CloseProtection,
+            "doorsupervision" => LicenseSector::DoorSupervision,
+            "publicspacesurveillancecctv" => LicenseSector::PublicSpaceSurveillance,
+            "securityguard" => LicenseSector::SecurityGuard,
+            "vehicleimmobilisation" => LicenseSector::VehicleImmobilisation,
+            "keyholding" => LicenseSector::KeyHolding,
             "" => LicenseSector::NoSector,
             _ => {
                 warn!("Unknown sector: {} - Please report this.", s);
