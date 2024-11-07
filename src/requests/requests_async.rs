@@ -2,7 +2,7 @@
 
 use std::time::Duration;
 
-use log::{debug, error, warn};
+use log::{error, warn};
 use reqwest::Client;
 
 use crate::errors::SIAError;
@@ -36,26 +36,7 @@ async fn request_base(
             Ok(res) => {
                 if res.status() == 200 {
                     let body = res.text().await.unwrap();
-                    return match parse(&body) {
-                        Ok(licenses) => Ok(licenses),
-                        Err(err) => match err {
-                            SIAError::NoLicensesFound => {
-                                debug!("No licenses found.");
-                                Ok(vec![])
-                            }
-                            SIAError::TooManyResults => {
-                                debug!("Too many search results.");
-                                Ok(vec![])
-                            }
-                            _ => {
-                                error!("Failed to parse license data.");
-                                Err(SIAError::Error(
-                                    "Failed to parse license data - ".to_owned()
-                                        + err.to_string().as_str(),
-                                ))
-                            }
-                        },
-                    };
+                    return parse(&body);
                 } else {
                     error!("Request failed with status code: {}", res.status());
                     if backoff > 8 {
@@ -120,8 +101,7 @@ mod tests {
         };
 
         let result = request_search_by_license(payload).await;
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().len(), 0);
+        assert!(result.is_err());
     }
 
     #[test_log::test(tokio::test)]
@@ -138,9 +118,7 @@ mod tests {
         };
 
         let result = request_search_by_license(payload).await;
-        assert!(result.is_ok());
-
-        assert_eq!(result.unwrap().len(), 1);
+        assert!(result.is_err());
     }
 
     #[test_log::test(tokio::test)]

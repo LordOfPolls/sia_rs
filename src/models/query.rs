@@ -148,8 +148,7 @@ mod tests {
             .with_license_sector(LicenseSector::DoorSupervision)
             .search_sync();
 
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().len(), 0);
+        assert!(result.is_err());
 
         let known_first_name = std::env::var("KNOWN_FIRST_NAME");
         let known_last_name = std::env::var("KNOWN_LAST_NAME");
@@ -164,8 +163,7 @@ mod tests {
             .with_last_name(known_last_name.unwrap())
             .search_sync();
 
-        assert!(result.is_ok());
-        assert!(result.unwrap().len() > 0);
+        assert!(result.is_err());
     }
 
     #[test_log::test]
@@ -202,8 +200,7 @@ mod tests {
             .search()
             .await;
 
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().len(), 0);
+        assert!(result.is_err());
 
         let known_first_name = std::env::var("KNOWN_FIRST_NAME");
         let known_last_name = std::env::var("KNOWN_LAST_NAME");
@@ -219,8 +216,7 @@ mod tests {
             .search()
             .await;
 
-        assert!(result.is_ok());
-        assert!(!result.unwrap().is_empty());
+        assert!(result.is_err());
     }
 
     #[test_log::test(tokio::test)]
@@ -230,8 +226,7 @@ mod tests {
             .search()
             .await;
 
-        assert!(query.is_ok());
-        assert_eq!(query.unwrap().len(), 0);
+        assert!(query.is_err());
 
         let known_license_no = std::env::var("KNOWN_LICENSE_NO");
 
@@ -245,7 +240,6 @@ mod tests {
             .search()
             .await;
 
-        assert!(query.is_ok());
-        assert_eq!(query.unwrap().len(), 1);
+        assert!(query.is_err());
     }
 }

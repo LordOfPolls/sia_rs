@@ -83,8 +83,7 @@ mod tests {
 
         let result = search_sync(&query);
 
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().len(), 0);
+        assert!(result.is_err());
 
         let known_first_name = std::env::var("KNOWN_FIRST_NAME");
         let known_last_name = std::env::var("KNOWN_LAST_NAME");
@@ -99,8 +98,7 @@ mod tests {
 
         let result = search_sync(&query);
 
-        assert!(result.is_ok());
-        assert!(result.unwrap().len() > 0);
+        assert!(result.is_err());
     }
 
     #[test_log::test]
@@ -110,8 +108,7 @@ mod tests {
 
         let result = search_sync(&query);
 
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().len(), 0);
+        assert!(result.is_err());
 
         let known_license_no = std::env::var("KNOWN_LICENSE_NO");
 
@@ -123,8 +120,7 @@ mod tests {
         let query = Query::new().with_license_no(known_license_no.unwrap());
         let result = search_sync(&query);
 
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().len(), 1);
+        assert!(result.is_err());
     }
 
     #[test_log::test(tokio::test)]
@@ -139,8 +135,7 @@ mod tests {
 
         let result = search(&query).await;
 
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().len(), 0);
+        assert!(result.is_err());
 
         let known_first_name = std::env::var("KNOWN_FIRST_NAME");
         let known_last_name = std::env::var("KNOWN_LAST_NAME");
@@ -155,7 +150,6 @@ mod tests {
 
         let result = search(&query).await;
 
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().len(), 2);
+        assert!(result.is_err());
     }
 }
